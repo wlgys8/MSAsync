@@ -13,6 +13,8 @@ namespace MS.Async{
 
         private static List<Action> _updateActions = new List<Action>();
 
+        private static List<ConditionalTask> _conditionalTask = new List<ConditionalTask>();
+
         private static IEnumerator WaitYieldInstruction(YieldInstruction instruction,Action<object> callback,object state){
             yield return instruction;
             callback(state);
@@ -52,6 +54,10 @@ namespace MS.Async{
             lock(_updateActions){
                 _updateActions.Add(action);
             }
+        }
+
+        public static void ScheduleConditionalTask(in ConditionalTask task){
+            _conditionalTask.Add(task);
         }
 
 
@@ -111,7 +117,13 @@ namespace MS.Async{
 
 
         void Update(){
+            ExecuteUpdateTasks();
+            ExecuteTimeTasks();
+            ExecuteKeyInputTasks();
+            ExecuteConditionalTasks();
+        }
 
+        private void ExecuteUpdateTasks(){
             lock(_updateActions){
                 while(_updateActions.Count > 0){
                     var action = _updateActions[0];
@@ -123,7 +135,9 @@ namespace MS.Async{
                     _updateActions.RemoveAt(0);
                 }
             }
+        }
 
+        private void ExecuteTimeTasks(){
             var now = DateTime.Now;
             while(_timeTasks.Count > 0){
                 var task = _timeTasks[0];
@@ -134,7 +148,8 @@ namespace MS.Async{
                     break;
                 }
             }
-
+        }
+        private void ExecuteKeyInputTasks(){
             if(Input.anyKey){
                 var index = 0;
                 while(index < _keyInputTasks.Count){
@@ -147,7 +162,18 @@ namespace MS.Async{
                      }
                 }
             }
-
+        }
+        private void ExecuteConditionalTasks(){
+            var index = 0;
+            while(index < _conditionalTask.Count){
+                var task = _conditionalTask[index];
+                if(task.condition()){
+                    _conditionalTask.RemoveAt(index);
+                    task.action(task.state);
+                }else{
+                    index ++;
+                }
+            }
         }
 
 
@@ -189,6 +215,15 @@ namespace MS.Async{
             }
         }
 
+        public struct ConditionalTask{
+
+            public Func<bool> condition;
+
+            public Action<object> action;
+
+            public object state;
+
+        }
 
 
         private static UnityLoops _instance;
