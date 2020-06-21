@@ -9,6 +9,10 @@ namespace MS.Async{
         private static List<YieldTask> _yieldTasks = new List<YieldTask>();
         private static List<TimeTask> _timeTasks = new List<TimeTask>();
 
+        private static List<KeyInputTask> _keyInputTasks = new List<KeyInputTask>();
+
+        private static List<Action> _updateActions = new List<Action>();
+
         private static IEnumerator WaitYieldInstruction(YieldInstruction instruction,Action<object> callback,object state){
             yield return instruction;
             callback(state);
@@ -37,6 +41,23 @@ namespace MS.Async{
                 };
                 InsertTimeTaskOrdered(ref task);
             }
+        }
+
+        /// <summary>
+        /// Schedule an action run in next update.
+        /// 
+        /// This method is thread safe
+        /// </summary>
+        public static void ScheduleUpdate(Action action){
+            lock(_updateActions){
+                _updateActions.Add(action);
+            }
+        }
+
+
+
+        public static void ScheduleKeyInput(in KeyInputTask task){
+            _keyInputTasks.Add(task);
         }
 
         private static void InsertTimeTaskOrdered(ref TimeTask task){
@@ -90,6 +111,19 @@ namespace MS.Async{
 
 
         void Update(){
+
+            lock(_updateActions){
+                while(_updateActions.Count > 0){
+                    var action = _updateActions[0];
+                    try{
+                        action();
+                    }catch(System.Exception e){
+                        Debug.LogException(e);
+                    }
+                    _updateActions.RemoveAt(0);
+                }
+            }
+
             var now = DateTime.Now;
             while(_timeTasks.Count > 0){
                 var task = _timeTasks[0];
@@ -100,6 +134,20 @@ namespace MS.Async{
                     break;
                 }
             }
+
+            if(Input.anyKey){
+                var index = 0;
+                while(index < _keyInputTasks.Count){
+                     var task = _keyInputTasks[index];
+                     if(task.IsActive){
+                         task.action(task.state);
+                         _keyInputTasks.RemoveAt(index);
+                     }else{
+                         index ++;
+                     }
+                }
+            }
+
         }
 
 
@@ -115,6 +163,30 @@ namespace MS.Async{
 
             public object state;
 
+        }
+
+        public struct KeyInputTask{
+
+            public KeyCode keyCode;
+            public KeyInutType type;
+
+            public Action<object> action;
+
+            public object state;
+
+            public bool IsActive{
+                get{
+                    switch(type){
+                        case KeyInutType.Down:
+                        return Input.GetKeyDown(keyCode);
+                        case KeyInutType.Up:
+                        return Input.GetKeyUp(keyCode);
+                        case KeyInutType.Any:
+                        return Input.GetKey(keyCode);
+                    }
+                    return false;
+                }
+            }
         }
 
 

@@ -21,6 +21,10 @@
 
     可以等待手动激活的信号量
 
+* await UnityThread
+
+    可以在其他线程中，将后续代码切到Unity主线程上执行
+
 
 # Usage
 
@@ -74,5 +78,21 @@ async void Start(){
         //goto here if singal.SetException() was called
     }
 }
+```
+
+## 5. Wait UnityThread
+
+```csharp
+
+async void Start(){
+
+    Task.Run(async ()=>{
+        Debug.Log("Run in Background Thread:" + Thread.CurrentThread.ManagedThreadId);
+        await new UnityThread();
+        //change context back to unity thread
+        Debug.LogFormat("After await UnityThread, threadId = {0}",Thread.CurrentThread.ManagedThreadId);        
+    })
+}
+
 ```
 
