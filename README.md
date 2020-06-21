@@ -81,6 +81,9 @@ async void Start(){
 ```
 
 ## 5. Wait UnityThread
+在非Unity线程中await时，可以将后面的代码切换到Unity线程上运行。
+
+在Unity线程上Await时，后面的代码会同步执行。
 
 ```csharp
 
@@ -92,6 +95,33 @@ async void Start(){
         //change context back to unity thread
         Debug.LogFormat("After await UnityThread, threadId = {0}",Thread.CurrentThread.ManagedThreadId);        
     })
+}
+
+```
+
+## 6. Wait Func<bool>
+
+等待任何自定义的条件函数，直到其返回true. 系统会在每帧的Update调用条件函数，检查其返回值.
+
+```csharp
+async void Start(){
+    Func<bool> condition = ()=>{
+        return Input.GetKeyDown(KeyCode.R);
+    };
+    await condition;
+    //execute code after press R
+}
+
+```
+
+## 7. Wait KeyInput
+
+```csharp
+
+async void Start(){
+    Debug.Log("press A to continue");
+    await new KeyInput(KeyCode.A,KeyInutType.Down);
+    Debug.Log("KeyCode.A Down");    
 }
 
 ```
