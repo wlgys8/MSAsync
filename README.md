@@ -25,6 +25,14 @@
 
     可以在其他线程中，将后续代码切到Unity主线程上执行
 
+* await BackgroundThread
+
+    将运行上下文切换为后台线程。
+
+* await Func\<bool>
+
+    等待自定义条件函数
+
 
 # Usage
 
@@ -80,21 +88,23 @@ async void Start(){
 }
 ```
 
-## 5. Wait UnityThread
-在非Unity线程中await时，可以将后面的代码切换到Unity线程上运行。
+## 5. Wait UnityThread & BackgroundThread
 
-在Unity线程上Await时，后面的代码会同步执行。
+对线程环境进行切换
 
 ```csharp
 
 async void Start(){
-
-    Task.Run(async ()=>{
-        Debug.Log("Run in Background Thread:" + Thread.CurrentThread.ManagedThreadId);
-        await new UnityThread();
-        //change context back to unity thread
-        Debug.LogFormat("After await UnityThread, threadId = {0}",Thread.CurrentThread.ManagedThreadId);        
-    })
+    var unityThreadId = Thread.CurrentThread.ManagedThreadId;
+    await new BackgroundThread();
+    //below code will run in background thread, and won't block unity thread.
+    Debug.Log("run at background thread");
+    Debug.Assert(unityThreadId != Thread.CurrentThread.ManagedThreadId);
+    Thread.Sleep(1000);
+    await new UnityThread(); 
+    //go back to unity thread
+    Debug.Assert(unityThreadId == Thread.CurrentThread.ManagedThreadId);
+    Debug.Log("go back to unity thread");
 }
 
 ```
@@ -125,4 +135,5 @@ async void Start(){
 }
 
 ```
+
 
