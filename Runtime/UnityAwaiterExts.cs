@@ -13,13 +13,31 @@ namespace MS.Async{
             var source = UnityEventSource<T>.Request(evt);
             return new SourceAwaiter<T>(source);
         }
-        public static YieldableAwaiter GetAwaiter(this YieldInstruction instruction){
-            return new YieldableAwaiter(instruction);
-        }
 
         public static ConditionAwaiter GetAwaiter(this Func<bool> condition){
             return new ConditionAwaiter(condition);
         }
+
+        public static YieldableAwaiter GetAwaiter(this YieldInstruction instruction){
+            return new YieldableAwaiter(instruction);
+        }
+
+
+        public static AsyncOperationAwaiter GetAwaiter(this AsyncOperation operation){
+            return new AsyncOperationAwaiter(operation);
+        }
+
+        public static ResourceRequestAwaiter<UnityEngine.Object> GetAwaiter(this ResourceRequest request){
+            return new ResourceRequestAwaiter<UnityEngine.Object>(request);
+        }
+
+        public static AssetBundleCreateRequestAwaiter GetAwaiter(this AssetBundleCreateRequest request){
+            return new AssetBundleCreateRequestAwaiter(request);
+        }
+        public static AssetBundleRequestAwaiter GetAwaiter(this AssetBundleRequest request){
+            return new AssetBundleRequestAwaiter(request);
+        }
+
 
     }
 }
