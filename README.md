@@ -33,6 +33,8 @@
 
     等待自定义条件函数
 
+* await all AsyncOperation
+
 
 # Usage
 
@@ -133,6 +135,20 @@ async void Start(){
     await new KeyInput(KeyCode.A,KeyInutType.Down);
     Debug.Log("KeyCode.A Down");    
 }
+
+```
+
+## 8. Wait AsyncOperation
+
+```csharp
+
+async void Start(){
+    var asset = await Resources.LoadAsync("path-to-res");
+    await UnityWebRequest.Get("url");
+    var assetbundle = await AssetBundle.LoadFromFileAsync("path-to-assetbundle");
+    var bundleAsset = await assetbundle.LoadAssetAsync("path-to-asset");
+}
+
 
 ```
 
