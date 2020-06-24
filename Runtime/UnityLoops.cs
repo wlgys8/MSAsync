@@ -47,13 +47,9 @@ namespace MS.Async{
 
         /// <summary>
         /// Schedule an action run in next update.
-        /// 
-        /// This method is thread safe
         /// </summary>
         public static void ScheduleUpdate(Action action){
-            lock(_updateActions){
-                _updateActions.Add(action);
-            }
+            _updateActions.Add(action);
         }
 
         public static void ScheduleConditionalTask(in ConditionalTask task){
@@ -124,15 +120,16 @@ namespace MS.Async{
         }
 
         private void ExecuteUpdateTasks(){
-            lock(_updateActions){
-                while(_updateActions.Count > 0){
-                    var action = _updateActions[0];
-                    try{
-                        action();
-                    }catch(System.Exception e){
-                        Debug.LogException(e);
-                    }
-                    _updateActions.RemoveAt(0);
+            var count = _updateActions.Count;
+            var index = 0;
+            while(index < count){
+                var action = _updateActions[0];
+                _updateActions.RemoveAt(0);
+                index ++;
+                try{
+                    action();
+                }catch(System.Exception e){
+                    Debug.LogException(e);
                 }
             }
         }
