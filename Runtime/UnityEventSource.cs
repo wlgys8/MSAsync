@@ -43,7 +43,7 @@ namespace MS.Async{
 
         private UnityEventSource(){
             _eventListener = ()=>{
-                _status = SourceStatus.Success;
+                _status = SourceStatus.Succeeded;
                 UnregisterListener();
                 _continuation();
             };
@@ -128,7 +128,7 @@ namespace MS.Async{
 
         private UnityEventSource(){
             _eventListener = (T result)=>{
-                _status = SourceStatus.Success;
+                _status = SourceStatus.Succeeded;
                 _result = result;
                 UnregisterListener();
                 _continuation();

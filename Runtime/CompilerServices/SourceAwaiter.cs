@@ -106,7 +106,7 @@ namespace MS.Async.CompilerServices{
 
     public enum SourceStatus{
         Pending,
-        Success,
+        Succeeded,
         Canceled,
         Faulted,
     }

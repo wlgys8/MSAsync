@@ -18,7 +18,7 @@ namespace MS.Async{
         }
 
         /// <summary>
-        /// 重置信号量。所有处于等待改信号量的异步操作都会抛出OperationCanceledException异常
+        /// 重置信号量。所有处于等待中信号量的异步操作都会抛出OperationCanceledException异常
         /// </summary>
         public void Reset(){
             _status = SourceStatus.Pending;
@@ -62,7 +62,7 @@ namespace MS.Async{
 
         public void SetResult(){
             AssertPending();
-            _status = SourceStatus.Success;
+            _status = SourceStatus.Succeeded;
             Complete();
         }
 
@@ -157,12 +157,12 @@ namespace MS.Async{
 
         public void SetResult(T result){
             AssertPending();
-            _status = SourceStatus.Success;
+            _status = SourceStatus.Succeeded;
             _result = result;
             Complete();
         }
 
-        public void Cancel(){
+        public void SetCanceled(){
             AssertPending();
             _status = SourceStatus.Canceled;
             Complete();
