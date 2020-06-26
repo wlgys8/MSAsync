@@ -11,10 +11,14 @@ namespace MS.Async.CompilerServices{
         };
 
         private KeyCode _keycode;
-        private KeyInutType _type;
-        public KeyInputAwait(KeyCode keyCode,KeyInutType type){
+        private KeyInputType _type;
+
+        private bool _immediate;
+
+        public KeyInputAwait(KeyCode keyCode,KeyInputType type,bool immediate){
             _keycode = keyCode;
             _type = type;
+            _immediate = immediate;
         }
 
         public void GetResult(){
@@ -23,12 +27,16 @@ namespace MS.Async.CompilerServices{
 
         public bool IsCompleted{
             get{
+                if(!_immediate){
+                    return false;
+                }
+                
                 switch(_type){
-                    case KeyInutType.Down:
+                    case KeyInputType.Down:
                     return Input.GetKeyDown(_keycode);
-                    case KeyInutType.Up:
+                    case KeyInputType.Up:
                     return Input.GetKeyUp(_keycode);
-                    case KeyInutType.Any:
+                    case KeyInputType.Any:
                     return Input.GetKey(_keycode);
                 }
                 return false;

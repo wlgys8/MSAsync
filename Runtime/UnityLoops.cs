@@ -206,7 +206,7 @@ namespace MS.Async{
         public struct KeyInputTask{
 
             public KeyCode keyCode;
-            public KeyInutType type;
+            public KeyInputType type;
 
             public Action<object> action;
 
@@ -215,11 +215,11 @@ namespace MS.Async{
             public bool IsActive{
                 get{
                     switch(type){
-                        case KeyInutType.Down:
+                        case KeyInputType.Down:
                         return Input.GetKeyDown(keyCode);
-                        case KeyInutType.Up:
+                        case KeyInputType.Up:
                         return Input.GetKeyUp(keyCode);
-                        case KeyInutType.Any:
+                        case KeyInputType.Any:
                         return Input.GetKey(keyCode);
                     }
                     return false;
