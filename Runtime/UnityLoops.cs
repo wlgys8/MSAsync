@@ -2,6 +2,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using UnityEngine.Profiling;
 
 namespace MS.Async{
     internal class UnityLoops : MonoBehaviour
@@ -75,6 +76,7 @@ namespace MS.Async{
             }else if(time >= maxTime){
                 _timeTasks.Add(task);
             }else{
+                // time >= minTime && time < maxTime
                 var index = FindIndexToInsert(ref time,0,_timeTasks.Count);
                 _timeTasks.Insert(index,task);
             }
@@ -87,6 +89,9 @@ namespace MS.Async{
             var middleIndex = (minIndex + maxIndex) / 2;
             var middleTime = _timeTasks[minIndex].targetTime;
             if(time < middleTime){
+                if(minIndex == middleIndex){
+                    return minIndex;
+                }
                 return FindIndexToInsert(ref time,minIndex,middleIndex);
             }else if(time > middleTime){
                 if(middleIndex == minIndex){
@@ -111,6 +116,10 @@ namespace MS.Async{
             }
         }
 
+        private const string NameOfUpdateTask = "UpdateTasks";
+        private const string NameOfTimeTasks = "TimeTasks";
+        private const string NameOfKeyInputTasks = "KeyInputTasks";
+
 
         void Update(){
             ExecuteUpdateTasks();
@@ -120,6 +129,7 @@ namespace MS.Async{
         }
 
         private void ExecuteUpdateTasks(){
+            Profiler.BeginSample(NameOfUpdateTask);
             var count = _updateActions.Count;
             var index = 0;
             while(index < count){
@@ -129,12 +139,14 @@ namespace MS.Async{
                 try{
                     action();
                 }catch(System.Exception e){
-                    Debug.LogException(e);
+                    UnityEngine.Debug.LogException(e);
                 }
             }
+            Profiler.EndSample();
         }
 
         private void ExecuteTimeTasks(){
+            Profiler.BeginSample(NameOfTimeTasks);
             var now = DateTime.Now;
             while(_timeTasks.Count > 0){
                 var task = _timeTasks[0];
@@ -145,9 +157,11 @@ namespace MS.Async{
                     break;
                 }
             }
+            Profiler.EndSample();
         }
         private void ExecuteKeyInputTasks(){
             if(Input.anyKey){
+                Profiler.BeginSample(NameOfKeyInputTasks);
                 var index = 0;
                 while(index < _keyInputTasks.Count){
                      var task = _keyInputTasks[index];
@@ -158,6 +172,7 @@ namespace MS.Async{
                          index ++;
                      }
                 }
+                Profiler.EndSample();
             }
         }
         private void ExecuteConditionalTasks(){
