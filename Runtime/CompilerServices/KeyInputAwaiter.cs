@@ -13,12 +13,9 @@ namespace MS.Async.CompilerServices{
         private KeyCode _keycode;
         private KeyInputType _type;
 
-        private bool _immediate;
-
-        public KeyInputAwait(KeyCode keyCode,KeyInputType type,bool immediate){
+        public KeyInputAwait(KeyCode keyCode,KeyInputType type){
             _keycode = keyCode;
             _type = type;
-            _immediate = immediate;
         }
 
         public void GetResult(){
@@ -27,10 +24,6 @@ namespace MS.Async.CompilerServices{
 
         public bool IsCompleted{
             get{
-                if(!_immediate){
-                    return false;
-                }
-                
                 switch(_type){
                     case KeyInputType.Down:
                     return Input.GetKeyDown(_keycode);
