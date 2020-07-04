@@ -44,6 +44,9 @@ namespace MS.Async{
         public T GetResult()
         {
             if(_status == SourceStatus.Canceled){
+                if(_exception != null){
+                    throw _exception;
+                }
                 throw new OperationCanceledException();
             }else if(_status == SourceStatus.Faulted){
                 throw new AggregateException(_exception);
@@ -75,6 +78,13 @@ namespace MS.Async{
         public void SetCanceled(){
             AssertPending();
             _status = SourceStatus.Canceled;
+            Complete();
+        }
+
+        public void SetCanceled(System.Exception e){
+            AssertPending();
+            _status = SourceStatus.Canceled;
+            _exception = e;   
             Complete();
         }
 
