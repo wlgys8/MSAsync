@@ -152,7 +152,11 @@ namespace MS.Async{
                 var task = _timeTasks[0];
                 if(now >= task.targetTime){
                     _timeTasks.RemoveAt(0);
-                    task.action(task.state);
+                    try{
+                        task.action(task.state);
+                    }catch(System.Exception e){
+                        UnityEngine.Debug.LogException(e);
+                    }
                 }else{
                     break;
                 }
