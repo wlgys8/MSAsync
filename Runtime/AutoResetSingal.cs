@@ -28,8 +28,8 @@ namespace MS.Async{
                 var count = _completeActions.Count;
                 var index = 0;
                 while(index < count){
-                    var action = _completeActions[index];
-                    _completeActions.RemoveAt(index);
+                    var action = _completeActions[0];
+                    _completeActions.RemoveAt(0);
                     action();
                     index ++;
                 }
